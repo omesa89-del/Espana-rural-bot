@@ -1,22 +1,20 @@
 name: 🌿 España Rural — Briefing Diario
+
 on:
   schedule:
     # Cada día a las 07:00 UTC = 09:00 hora España (invierno) / 10:00 (verano)
     - cron: '0 8 * * *'
+    
   workflow_dispatch:  # Permite lanzarlo manualmente desde GitHub
 jobs:
   enviar-briefing:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Descargar código
         uses: actions/checkout@v4
-      - name: 🐍 Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 📦 Instalar dependencias
         run: pip install anthropic requests
-      - name: 🌿 Enviar briefing a Telegram
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
