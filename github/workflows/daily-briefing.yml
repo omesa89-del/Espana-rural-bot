@@ -2,7 +2,7 @@ name: 🌿 España Rural — Briefing Diario
 on:
   schedule:
     # Cada día a las 07:00 UTC = 09:00 hora España (invierno) / 10:00 (verano)
-    - cron: '0 7 * * *'
+    - cron: '0 8 * * *'
   workflow_dispatch:  # Permite lanzarlo manualmente desde GitHub
 jobs:
   enviar-briefing:
