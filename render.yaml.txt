@@ -1,0 +1,17 @@
+services:
+  - type: worker
+    name: espana-rural-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: HORA_ENVIO
+        value: "08:00"
+      - key: REGION
+        value: ""
