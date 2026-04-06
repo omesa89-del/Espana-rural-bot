@@ -73,19 +73,16 @@ def generar_briefing() -> str:
 
 
 def enviar_telegram(mensaje: str):
-    print("📱 Enviando a Telegram...")
+    print("Enviando a Telegram...")
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     if len(mensaje) > 4000:
-        mensaje = mensaje[:3997] + "..."
-    r = requests.post(url, json={
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": mensaje,
-        "parse_mode": "HTML",
-    }, timeout=15)
-    r.raise_for_status()
-    print("✅ Briefing enviado correctamente")
-
-
-if __name__ == "__main__":
-    briefing = generar_briefing()
-    enviar_telegram(briefing)
+        partes = [mensaje[:3997] + "...", "..." + mensaje[3997:]]
+    else:
+        partes = [mensaje]
+    for parte in partes:
+        r = requests.post(url, json={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": parte
+        }, timeout=15)
+        r.raise_for_status()
+    print("Enviado correctamente")
