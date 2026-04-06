@@ -65,15 +65,11 @@ def generar_briefing() -> str:
     print("🤖 Generando briefing con Claude...")
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-haiku-4-5-20251001",  # Modelo más económico (~0.03$/briefing)
         max_tokens=1500,
-        tools=[{"type": "web_search_20250305", "name": "web_search"}],
         messages=[{"role": "user", "content": construir_prompt()}],
     )
-    texto = "\n".join(
-        bloque.text for bloque in response.content if bloque.type == "text"
-    )
-    return texto.strip()
+    return response.content[0].text.strip()
 
 
 def enviar_telegram(mensaje: str):
