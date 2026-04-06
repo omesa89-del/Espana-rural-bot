@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-"""
-🌿 España Rural — Briefing diario para GitHub Actions
-Se ejecuta una vez y termina (GitHub Actions lo programa)
-"""
-
 import anthropic
 import requests
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -15,62 +10,61 @@ TELEGRAM_CHAT_ID   = os.environ["TELEGRAM_CHAT_ID"]
 REGION             = os.environ.get("REGION", "")
 
 TEMAS = [
-    "emprendimiento rural y nuevos negocios en pueblos pequeños España",
-    "subvenciones y ayudas zonas rurales España despoblación",
-    "turismo rural sostenible España noticias",
-    "conectividad fibra óptica banda ancha rural España",
-    "iniciativas cultura patrimonio pueblos España",
+    "emprendimiento rural y nuevos negocios en pueblos pequenos Espana",
+    "subvenciones y ayudas zonas rurales Espana despoblacion",
+    "turismo rural sostenible Espana noticias",
+    "conectividad fibra optica banda ancha rural Espana",
+    "iniciativas cultura patrimonio pueblos Espana",
 ]
 
-
 def construir_prompt() -> str:
-    fecha = datetime.now().strftime("%A %d de %B de %Y")
-    region_txt = f" especialmente en {REGION}" if REGION else " en toda España"
-    temas_txt = "\n".join(f"  • {t}" for t in TEMAS)
+    hoy = datetime.now()
+    semana_inicio = (hoy - timedelta(days=7)).strftime("%d de %B")
+    semana_fin = hoy.strftime("%d de %B de %Y")
+    region_txt = f" especialmente en {REGION}" if REGION else " en toda Espana"
+    temas_txt = "\n".join(f"  - {t}" for t in TEMAS)
+    return f"""Eres un periodista especializado en la Espana rural.
 
-    return f"""Eres un periodista especializado en la España rural y la lucha contra la despoblación.
+Genera el resumen semanal del {semana_inicio} al {semana_fin}{region_txt}.
+Temas: {temas_txt}
 
-Hoy es {fecha}.
+Formato Telegram (sin caracteres especiales, solo texto plano y emojis):
 
-Genera un briefing diario de noticias sobre la España rural{region_txt}.
-Temáticas a cubrir:
-{temas_txt}
+RESUMEN SEMANAL {semana_inicio} AL {semana_fin}
 
-Formato para Telegram (usa emojis y texto plano):
+LO MAS DESTACADO
+[2-3 frases resumen]
 
-🌿 PULSO RURAL — {fecha.upper()}
+NOTICIAS DE LA SEMANA
+[6-8 noticias con titulo y 2 lineas cada una]
 
-📌 TITULAR DEL DÍA
-[Una frase impactante]
+OPORTUNIDADES Y CONVOCATORIAS
+[2-3 ayudas o subvenciones abiertas]
 
-📰 NOTICIAS DESTACADAS
-[4 noticias con título, fuente probable y 2 líneas de contexto cada una]
+EMPRENDIMIENTO RURAL
+[2 iniciativas o casos de exito]
 
-💶 OPORTUNIDAD DE LA SEMANA
-[Una convocatoria, subvención o iniciativa concreta y accionable]
+DATO DE LA SEMANA
+[Un dato relevante]
 
-📊 DATO RURAL
-[Un dato sorprendente o motivador sobre la España rural]
+PROXIMA SEMANA
+[Eventos o plazos importantes]
 
-💬 PARA REFLEXIONAR
-[Una frase inspiradora final]
+REFLEXION FINAL
+[Frase inspiradora]
 
-──────────────────
-🌐 España Rural · Tu comunidad de pueblos vivos
-
-Sé concreto, útil y esperanzador."""
-
+Espana Rural - Tu comunidad de pueblos vivos"""
 
 def generar_briefing() -> str:
-    print("🤖 Generando briefing con Claude...")
+    print("Generando resumen semanal...")
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
-        model="claude-haiku-4-5-20251001",  # Modelo más económico (~0.03$/briefing)
-        max_tokens=1500,
+        model="claude-haiku-4-5-20251001",
+        max_tokens=2000,
         messages=[{"role": "user", "content": construir_prompt()}],
     )
+    print("Briefing generado OK")
     return response.content[0].text.strip()
-
 
 def enviar_telegram(mensaje: str):
     print("Enviando a Telegram...")
@@ -84,5 +78,10 @@ def enviar_telegram(mensaje: str):
             "chat_id": TELEGRAM_CHAT_ID,
             "text": parte
         }, timeout=15)
+        print(f"Respuesta Telegram: {r.status_code} - {r.text[:200]}")
         r.raise_for_status()
     print("Enviado correctamente")
+
+if __name__ == "__main__":
+    briefing = generar_briefing()
+    enviar_telegram(briefing)
